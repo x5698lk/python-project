@@ -1,5 +1,4 @@
 from tkinter import *
-from tkinter.messagebox import *
 
 
 class Chess(object):
@@ -20,6 +19,10 @@ class Chess(object):
 
         ##初始化棋子顏色及玩家
         self.is_black = True
+
+        ##紀錄棋盤陣列
+        self.matrix = [[0 for y in range(self.column+1)]for x in range(self.row+1)]
+        self.last_step = NONE
 
     #GUI
         ##視窗建立
@@ -95,6 +98,8 @@ class Chess(object):
 
     ##按鈕功能函式
     def start(self):
+        self.matrix = [[0 for y in range(self.column+1)]for x in range(self.row+1)]
+        self.last_step = NONE
         self.btn_state("start")
         self.is_start = True
         self.is_black = True
@@ -105,11 +110,23 @@ class Chess(object):
     def restart(self):
         self.start()
 
-    ##悔棋功能(還沒寫)
+    ##悔棋功能
     def reget(self):
+        if self.last_step == NONE :
+            self.lablePlayer.config(text="不能悔棋")
+        self.draw_block()
+        self.last_step = NONE
         self.is_black = not self.is_black
         text = self.ternary_operator("黑方下棋", "白方下棋")
         self.lablePlayer.config(text=text)
+    
+    ##悔棋去除棋子
+    def draw_block(self):
+        x,y = self.last_step
+        self.board.create_rectangle(x*self.mesh-self.chess_r,y*self.mesh-self.chess_r,x*self.mesh+self.chess_r,y*self.mesh+self.chess_r, fill = '#CDBA96' , outline = '#CDBA96')
+        self.board.create_line(x*self.mesh-self.chess_r,y*self.mesh,x*self.mesh+self.chess_r+0.5,y*self.mesh,width = 2)
+        self.board.create_line(x*self.mesh,y*self.mesh-self.chess_r,x*self.mesh,y*self.mesh+self.chess_r+0.5,width = 2)
+        self.matrix[x][y] = 0
 
     def surrender(self):
         self.btn_state("init")
@@ -117,19 +134,54 @@ class Chess(object):
         text = self.ternary_operator("黑方認輸", "白方認輸")
         self.lablePlayer.config(text=text)
 
-    ##畫棋子(座標化還沒寫)
+
+    ##畫棋子
     def gamechess(self,event):
-        if not self.is_start:
+        x = int(event.x/self.mesh+0.5)
+        y = int(event.y/self.mesh+0.5)
+        if x<0.5 or x>(self.row+0.5) or y<0.5 or y>(self.column+0.5) or self.matrix[x][y]!=0 or not self.is_start:
             return
-        x = event.x
-        y = event.y
+        tag = self.ternary_operator("1","-1")
+        self.matrix[x][y] = tag
+        self.last_step = [x,y]
         color = self.ternary_operator("black", "white")
-        self.drawchess(x, y, color)
+        self.drawchess(x*self.mesh, y*self.mesh, color)
+        if self.win(x,y,tag):
+            self.is_start = False
+            self.btn_state("init")
+            text = self.ternary_operator("黑方獲勝","白方獲勝")
+            self.lablePlayer.config(text = text)
+            return
         self.trans_identify()
-    
-    ##判斷輸贏演算法(還沒寫)
-    def win(self):
-        return 0
+        
+    ##判斷輸贏演算法(先抄)
+    def win(self,x,y,tag):
+        def direction(i, j, di, dj, row, column, matrix):
+            temp = []
+            while 0 <= i < row and 0 <= j < column:
+                i, j = i + di, j + dj
+            i, j = i - di, j - dj
+            while 0 <= i < row and 0 <= j < column:
+                temp.append(matrix[i][j])
+                i, j = i - di, j - dj
+            return temp
+ 
+        four_direction = []
+        four_direction.append([self.matrix[i][y] for i in range(self.row)])
+        four_direction.append([self.matrix[x][j] for j in range(self.column)])
+        four_direction.append(direction(x, y, 1, 1, self.row, self.column, self.matrix))
+        four_direction.append(direction(x, y, 1, -1, self.row, self.column, self.matrix))
+ 
+        for v_list in four_direction:
+            count = 0
+            for v in v_list:
+                if v == tag:
+                    count += 1
+                    if count == 5:
+                        return True
+                else:
+                    count = 0
+        return False
         
    
 
