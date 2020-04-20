@@ -1,6 +1,5 @@
 from tkinter import *
 
-
 class Chess(object):
     def __init__(self):
     #數值設定
@@ -154,7 +153,7 @@ class Chess(object):
             return
         self.trans_identify()
         
-    ##判斷輸贏演算法(先抄)
+    ##判斷輸贏演算法
     def win(self,x,y,tag):
         def direction(i, j, di, dj, row, column, matrix):
             temp = []
@@ -167,8 +166,8 @@ class Chess(object):
             return temp
  
         four_direction = []
-        four_direction.append([self.matrix[i][y] for i in range(self.row)])
-        four_direction.append([self.matrix[x][j] for j in range(self.column)])
+        four_direction.append([self.matrix[i][y] for i in range(self.row+1)])
+        four_direction.append([self.matrix[x][j] for j in range(self.column+1)])
         four_direction.append(direction(x, y, 1, 1, self.row, self.column, self.matrix))
         four_direction.append(direction(x, y, 1, -1, self.row, self.column, self.matrix))
  
