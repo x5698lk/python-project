@@ -1,22 +1,13 @@
 from tkinter import *
 
 class Chess(object):
+   
     def __init__(self):
-    #數值設定
-        ##棋盤行列設定
         self.row = 15
         self.column = 15
-
-        ##網格大小
         self.mesh = 40
-
-        ##棋子半徑
         self.chess_r = 15
-
-        ##初始化按鈕狀態
         self.is_start = False
-
-        ##初始化棋子顏色及玩家
         self.is_black = True
 
         ##紀錄棋盤陣列
